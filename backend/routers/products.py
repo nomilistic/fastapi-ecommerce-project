@@ -6,18 +6,23 @@ from backend.database import get_db
 import backend.oauth2 as oauth2
 from sqlalchemy.orm import Session
 import backend.permissions as permissions
+import requests
+
 
 router = APIRouter()
 
-
-@router.post('/products')
-def add_product(product:schemas.Product,db:Session = Depends(get_db),current_user:str = Depends(oauth2.get_current_user), _: None = Depends(permissions.admin_required)):
-  new_product = models.Product(**product.dict())
-
-  db.add(new_product)
-  db.commit()
-  db.refresh(new_product)
-  return new_product
+@router.post("/products",response_model=schemas.Product)
+def addProducts(
+    product: schemas.Product,
+    current_user: models.User = Depends(oauth2.get_current_user),
+    db: Session = Depends(get_db),
+    _: None = Depends(permissions.admin_required)
+):
+    new_product = models.Product(**product.dict())
+    db.add(new_product)
+    db.commit()
+    db.refresh(new_product)
+    return new_product
 
 @router.put('/products/{product_id}')
 def update_product(product:schemas.Product,product_id:int,db:Session = Depends(get_db),current_user:str = Depends(oauth2.get_current_user), _: None = Depends(permissions.admin_required)):
@@ -30,8 +35,6 @@ def update_product(product:schemas.Product,product_id:int,db:Session = Depends(g
   product_to_update.price = product.price
   product_to_update.quantity_available= product.quantity_available
   
-  
-
   db.commit()
   db.refresh(product_to_update)
   return product_to_update 
@@ -51,14 +54,13 @@ def delete_product(id:int,db:Session=Depends(get_db),current_user:str = Depends(
 
   return {'message':'product was successfully deleted'}
 
+@router.get("/products")
+def get_all_products(db: Session = Depends(get_db)):
+    return db.query(models.Product).all()
 
-@router.get('/products')
-def get_products(db:Session=Depends(get_db),current_user:str = Depends(oauth2.get_current_user)):
-
-  return db.query(models.Product).all()
 
 @router.get('/products/{id}')
-def get_product_by_id(id:int,db:Session=Depends(get_db),current_user:str = Depends(oauth2.get_current_user)):
+def get_product_by_id(id:int,db:Session=Depends(get_db)):
 
   product = db.query(models.Product).filter(models.Product.id==id).first()
 

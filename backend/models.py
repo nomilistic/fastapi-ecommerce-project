@@ -40,6 +40,7 @@ class Cart(Base):
   __tablename__ = "cart"
 
   id = Column(Integer,primary_key=True,nullable=False)
+  name = Column(String,nullable=False)
   quantity = Column(Integer,nullable=False)
   user_id = Column(String, ForeignKey("ecomusers.username",ondelete="CASCADE"), nullable=False)
   product_id = Column(Integer, ForeignKey("products.id",ondelete="CASCADE"), nullable=False)

@@ -2,14 +2,14 @@ from fastapi import FastAPI
 # import models
 # from database import engine
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth,users,roles,products,cart,orders
+from backend.routers import auth,users,roles,products,cart,orders
 
 # not needed after alembic now
 # models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-origins = ["https://www.google.com"]
+origins = ["http://localhost:8501","https://www.google.com"]
 app.add_middleware(
   CORSMiddleware,
   allow_origins = origins,

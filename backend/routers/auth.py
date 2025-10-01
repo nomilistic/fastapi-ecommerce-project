@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 
-@router.post('/login',response_model=schemas.Token)
+@router.post('/login')
 def login_user(user:schemas.UserLogin,db:Session=Depends(get_db)):
 
   user_from_db = db.query(models.User).filter(models.User.username == user.username).first()
@@ -20,5 +20,10 @@ def login_user(user:schemas.UserLogin,db:Session=Depends(get_db)):
   if not utils.verify(user.password,user_from_db.password):
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail = f"Invalid Credentials")
 
+
+  user_role_id = db.query(models.UserRole.role_id).filter(models.UserRole.user_id == user.username).first()
+  
+  user_role = db.query(models.Role.role).filter(models.Role.id == user_role_id[0]).first()
+  
   access_token = oauth2.create_access_token(data={"username": user.username})
-  return {"access_token": access_token, "token_type": "bearer"}
+  return {"access_token": access_token, "token_type": "bearer","role":user_role[0]}

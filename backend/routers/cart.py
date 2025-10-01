@@ -25,6 +25,7 @@ def add_to_cart(cart_item:schemas.AddToCart,db:Session=Depends(get_db),current_u
   new_cart_item=models.Cart(
         user_id=current_user.username,
         product_id=product.id,
+        name = product.name,
         quantity=cart_item.quantity,
         price = product.price * cart_item.quantity
     )
